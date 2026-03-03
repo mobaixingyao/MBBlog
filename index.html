@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <link rel="icon" type="image/png" href="https://thirdqq.qlogo.cn/g?b=sdk&k=kdhFkE8rUkYPgQD9JQ0kTg&kti=aXWJZRHpkkA&s=100&t=1735661410">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>墨白星耀的小窝</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <!-- 悬浮音乐播放器 -->
+    <div id="music-player" class="music-player">
+        <div class="music-disc">
+            <div class="disc-inner"></div>
+        </div>
+        <div class="music-content">
+            <div class="music-info">
+                <span class="music-title">NOW PLAYING</span>
+                <span class="music-name" id="musicName">未加载音乐</span>
+            </div>
+            <div class="music-wave">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="music-controls">
+                <button class="control-btn" id="musicPlayBtn" title="播放/暂停">
+                    <svg class="play-icon" viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+                    <svg class="pause-icon" viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+            </div>
+        </div>
+        <button class="music-toggle" id="musicToggle" title="展开/收起">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        </button>
+        <audio id="musicAudio" preload="metadata"></audio>
+    </div>
+
+    <!-- 背景图片 -->
+    <div class="background" id="bgImage" style="background-image: url('https://api.elaina.cat/random/');"></div>
+
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 侧边栏切换按钮 -->
+        <button class="sidebar-toggle" id="sidebarToggle" title="文章目录">
+            <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </button>
+
+        <!-- 暗色模式切换按钮 -->
+        <button class="theme-toggle" id="themeToggle" title="切换主题">
+            <svg class="sun-icon" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>
+            <svg class="moon-icon" viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+        </button>
+
+        <!-- 侧边栏 -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>文章目录</h3>
+                <button class="sidebar-close" id="sidebarClose" title="关闭">
+                    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                <!-- 搜索框 -->
+                <div class="search-box">
+                    <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    <input type="text" id="articleSearch" placeholder="搜索文章...">
+                </div>
+                <ul class="article-list" id="articleList">
+                </ul>
+            </nav>
+
+        </aside>
+
+        <!-- 头像卡片 -->
+        <div class="profile-card">
+            <img src="https://thirdqq.qlogo.cn/g?b=sdk&k=kdhFkE8rUkYPgQD9JQ0kTg&kti=aXWJZRHpkkA&s=100&t=1735661410" alt="我的头像" class="avatar" id="avatarImage">
+            <h1 class="name">墨白星耀</h1>
+            <p class="tagline">还活着喵</p>
+            <div class="social-links">
+                <a href="https://github.com/mobaixingyao" class="social-link" title="GitHub">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                </a>
+                <a href="https://x.com" class="social-link" title="Twitter">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+                </a>
+                <a href="https://mail.google.com/" class="social-link" title="Email">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                </a>
+                <a href="https://space.bilibili.com/1610256606?spm_id_from=333.1007.0.0" class="social-link" title="哔哩哔哩">
+                    <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" fill-rule="evenodd" d="M4.977 3.561a1.31 1.31 0 111.818-1.884l2.828 2.728c.08.078.149.163.205.254h4.277a1.32 1.32 0 01.205-.254l2.828-2.728a1.31 1.31 0 011.818 1.884L17.82 4.66h.848A5.333 5.333 0 0124 9.992v7.34a5.333 5.333 0 01-5.333 5.334H5.333A5.333 5.333 0 010 17.333V9.992a5.333 5.333 0 015.333-5.333h.781L4.977 3.56zm.356 3.67a2.667 2.667 0 00-2.666 2.667v7.529a2.667 2.667 0 002.666 2.666h13.334a2.667 2.667 0 002.666-2.666v-7.53a2.667 2.667 0 00-2.666-2.666H5.333zm1.334 5.192a1.333 1.333 0 112.666 0v1.192a1.333 1.333 0 11-2.666 0v-1.192zM16 11.09c-.736 0-1.333.597-1.333 1.333v1.192a1.333 1.333 0 102.666 0v-1.192c0-.736-.597-1.333-1.333-1.333z"/></svg>
+                </a>
+            </div>
+            <div id="datetime-container" class="datetime-container">
+                <div id="currentDate" class="date-display-large"></div>
+                <div id="currentTime" class="time-display-large"></div>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <main class="content">
+
+            <!-- 更多文章占位 -->
+<!-- <article class="article-card placeholder" id="article-2">
+              
+                <div class="article-meta">
+                    <span class="date">2026/3/1</span>
+                </div>
+                <div class="article-body markdown-content">
+TEXT
+               </div>
+            </article>
+           -->
+
+
+                    
+<article class="article-card placeholder" id="article-4">
+                <h2 class="article-title">示例文件</h2>
+                <div class="article-meta">
+                    <span class="date">2026/3/1</span>
+                </div>
+                <div class="article-body markdown-content">
+支持所有markdwon格式写法
+
+换行需回车两次
+
+图片示例：
+
+![图片显示文字1](assets\images\ran.jpg)
+
+支持网页链接：
+
+![图片显示文字2](https://openfs.oppomobile.com/open/oop/202603/03/951f687c2fcfec1c35aa9b85ee79cc3d.jpg)
+
+# 一级标题写法 
+
+## 二级标题写法
+
+**粗体**
+
+*斜体*
+
+> 引用
+
+1. 列表1
+2. 列表2
+3. 列表3
+4. 列表4
+
+```
+代码块
+```
+
+分割线：
+
+---
+<!-- 其他写法: *** 或 ___ -->
+
+超链接:
+
+[哔哩哔哩 (゜-゜)つロ 干杯~-bilibili ](https://www.bilibili.com)。
+
+<!-- [显示文字](链接) -->
+
+特殊写法:
+
+??隐藏式文字??
+
+内嵌视频:
+
+::video https://file.icve.com.cn/file_doc/qdqqd/8151772517365433.mp4::
+
+内嵌哔哩哔哩视频：
+
+::bilibili BV12CrCBTEEq::
+
+
+
+               </div>
+            </article>
+
+
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p style="color: #1f2937;">© 2026 墨白星耀 愿你天天开心 明天见~</p>
+        </footer>
+    </div>
+
+    <!-- 图片预览模态框 -->
+    <div id="imageModal" class="image-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <img id="modalImage" class="modal-image" src="" alt="">
+            <div class="modal-controls">
+                <div class="zoom-controls">
+                    <button id="zoomOut" class="zoom-btn" title="缩小">
+                        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19 13H5v-2h14v2z"/></svg>
+                    </button>
+                    <span id="zoomLevel" class="zoom-level">100%</span>
+                    <button id="zoomIn" class="zoom-btn" title="放大">
+                        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    </button>
+                </div>
+                <button id="downloadBtn" class="download-btn">
+                    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                    <span>下载</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 回到顶部按钮 -->
+    <button class="back-to-top" id="backToTop" title="回到顶部">
+        <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg>
+    </button>
+
+</body>
+</html>
+
+<script>
+function updateDateTime() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    // 日期格式化
+    const dateStr = `${year}年${month}月${day}日`;
+    const dateHtml = dateStr.split('').map(char => 
+        char === ' ' ? '&nbsp;' : `<span class="date-char">${char}</span>`
+    ).join('');
+    
+    // 时间格式化
+    const timeStr = `${hours}:${minutes}:${seconds}`;
+    const timeHtml = timeStr.split('').map(char => 
+        char === ' ' ? '&nbsp;' : `<span class="date-char">${char}</span>`
+    ).join('');
+    
+    document.getElementById('currentDate').innerHTML = dateHtml;
+    document.getElementById('currentTime').innerHTML = timeHtml;
+}
+
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+// 渲染 Markdown
+document.querySelectorAll('.markdown-content').forEach(el => {
+    let content = el.textContent;
+    content = content.replace(/\?\?(.+?)\?\?/g, '<span class="spoiler">$1</span>');
+    content = content.replace(/::video\s+(.+?)::/g, '<div class="video-embed"><video controls preload="metadata" playsinline><source src="$1" type="video/mp4">您的浏览器不支持视频播放。</video></div>');
+    content = content.replace(/::bilibili\s+(BV\w+)::/g, '<div class="video-embed"><iframe src="//player.bilibili.com/player.html?bvid=$1&autoplay=0" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe></div>');
+    el.innerHTML = marked.parse(content);
+});
+
+// 为代码块添加复制按钮
+document.querySelectorAll('.markdown-content pre').forEach(pre => {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg><span>复制</span>';
+    btn.addEventListener('click', async function() {
+        const code = pre.querySelector('code') ? pre.querySelector('code').textContent : pre.textContent;
+        try {
+            await navigator.clipboard.writeText(code);
+            btn.classList.add('copied');
+            btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg><span>已复制</span>';
+            setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg><span>复制</span>';
+            }, 2000);
+        } catch (err) {
+            console.error('复制失败:', err);
+        }
+    });
+    pre.appendChild(btn);
+});
+
+// 为剧透文本添加点击事件（移动端支持）
+document.querySelectorAll('.spoiler').forEach(spoiler => {
+    spoiler.addEventListener('click', function() {
+        this.classList.toggle('active');
+    });
+});
+
+// 图片预览和下载功能
+const modal = document.getElementById('imageModal');
+const modalImage = document.getElementById('modalImage');
+const closeModal = document.querySelector('.close-modal');
+const downloadBtn = document.getElementById('downloadBtn');
+const zoomInBtn = document.getElementById('zoomIn');
+const zoomOutBtn = document.getElementById('zoomOut');
+const zoomLevelDisplay = document.getElementById('zoomLevel');
+let currentImageUrl = '';
+let currentZoom = 100;
+const minZoom = 50;
+const maxZoom = 300;
+const zoomStep = 25;
+let isDragging = false;
+let startX, startY, translateX = 0, translateY = 0;
+
+// 为所有 Markdown 渲染后的图片添加点击事件
+function addImageClickEvents() {
+    const images = document.querySelectorAll('.markdown-content img');
+    images.forEach(img => {
+        // 检查是否已经绑定过点击事件
+        if (!img.hasAttribute('data-modal-event-bound')) {
+            img.style.cursor = 'pointer';
+            img.setAttribute('data-modal-event-bound', 'true');
+            img.addEventListener('click', function() {
+                // 防止重复打开模态框
+                if (modal.style.display === 'flex') return;
+                currentImageUrl = this.src;
+                modalImage.src = this.src;
+                resetZoom();
+                modal.style.display = 'flex';
+                modalImage.style.cursor = currentZoom > 100 ? 'grab' : 'default';
+                // 隐藏侧边栏按钮和回到顶部按钮
+                const sidebarToggleBtn = document.getElementById('sidebarToggle');
+                const backToTop = document.getElementById('backToTop');
+                const themeToggle = document.getElementById('themeToggle');
+                if (sidebarToggleBtn) sidebarToggleBtn.style.display = 'none';
+                if (backToTop) backToTop.style.display = 'none';
+                if (themeToggle) themeToggle.style.display = 'none';
+            });
+        }
+    });
+}
+
+// 初始化时添加图片点击事件
+addImageClickEvents();
+
+// 使用 MutationObserver 监听 DOM 变化，为新加载的图片添加点击事件
+const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+        if (mutation.type === 'childList') {
+            addImageClickEvents();
+        }
+    });
+});
+
+observer.observe(document.body, {
+    childList: true,
+    subtree: true
+});
+
+// 重置缩放
+function resetZoom() {
+    currentZoom = 100;
+    translateX = 0;
+    translateY = 0;
+    updateZoom();
+}
+
+// 更新缩放
+function updateZoom() {
+    modalImage.style.transform = `scale(${currentZoom / 100}) translate(${translateX}px, ${translateY}px)`;
+    zoomLevelDisplay.textContent = `${currentZoom}%`;
+    zoomOutBtn.style.opacity = currentZoom <= minZoom ? '0.3' : '1';
+    zoomOutBtn.style.pointerEvents = currentZoom <= minZoom ? 'none' : 'auto';
+    zoomInBtn.style.opacity = currentZoom >= maxZoom ? '0.3' : '1';
+    zoomInBtn.style.pointerEvents = currentZoom >= maxZoom ? 'none' : 'auto';
+}
+
+// 放大图片
+zoomInBtn.addEventListener('click', function() {
+    if (currentZoom < maxZoom) {
+        currentZoom = Math.min(currentZoom + zoomStep, maxZoom);
+        updateZoom();
+        modalImage.style.cursor = currentZoom > 100 ? 'grab' : 'default';
+    }
+});
+
+// 缩小图片
+zoomOutBtn.addEventListener('click', function() {
+    if (currentZoom > minZoom) {
+        currentZoom = Math.max(currentZoom - zoomStep, minZoom);
+        updateZoom();
+        modalImage.style.cursor = currentZoom > 100 ? 'grab' : 'default';
+    }
+});
+
+// 鼠标滚轮缩放
+modalImage.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+        if (currentZoom < maxZoom) {
+            currentZoom = Math.min(currentZoom + zoomStep, maxZoom);
+            updateZoom();
+            modalImage.style.cursor = currentZoom > 100 ? 'grab' : 'default';
+        }
+    } else {
+        if (currentZoom > minZoom) {
+            currentZoom = Math.max(currentZoom - zoomStep, minZoom);
+            updateZoom();
+            modalImage.style.cursor = currentZoom > 100 ? 'grab' : 'default';
+        }
+    }
+});
+
+// 鼠标拖动图片
+modalImage.addEventListener('mousedown', function(e) {
+    if (currentZoom > 100) {
+        e.preventDefault();
+        isDragging = true;
+        startX = e.clientX - translateX;
+        startY = e.clientY - translateY;
+        modalImage.style.cursor = 'grabbing';
+        modalImage.classList.add('dragging');
+    }
+});
+
+// 阻止图像的默认拖拽行为
+modalImage.addEventListener('dragstart', function(e) {
+    e.preventDefault();
+});
+
+document.addEventListener('mousemove', function(e) {
+    if (isDragging) {
+        e.preventDefault();
+        translateX = e.clientX - startX;
+        translateY = e.clientY - startY;
+        updateZoom();
+    }
+});
+
+document.addEventListener('mouseup', function(e) {
+    if (isDragging) {
+        isDragging = false;
+        modalImage.style.cursor = currentZoom > 100 ? 'grab' : 'default';
+        modalImage.classList.remove('dragging');
+    }
+});
+
+// 关闭模态框
+function closeModalFn() {
+    modal.style.display = 'none';
+    // 显示侧边栏按钮和回到顶部按钮
+    const sidebarToggleBtn = document.getElementById('sidebarToggle');
+    const backToTop = document.getElementById('backToTop');
+    const themeToggle = document.getElementById('themeToggle');
+    if (sidebarToggleBtn) sidebarToggleBtn.style.display = '';
+    if (backToTop) backToTop.style.display = '';
+    if (themeToggle) themeToggle.style.display = '';
+}
+
+closeModal.addEventListener('click', closeModalFn);
+
+// 点击模态框背景关闭
+modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+        closeModalFn();
+    }
+});
+
+// 下载图片
+downloadBtn.addEventListener('click', function() {
+    if (currentImageUrl) {
+        const link = document.createElement('a');
+        link.href = currentImageUrl;
+        link.download = currentImageUrl.split('/').pop() || 'image.jpg';
+        link.target = '_blank';
+        
+        // 尝试直接下载
+        fetch(currentImageUrl)
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                link.href = url;
+                link.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(() => {
+                // 如果跨域限制，在新标签页打开
+                link.click();
+            });
+    }
+});
+
+// ESC 键关闭模态框
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal.style.display === 'flex') {
+        closeModalFn();
+    }
+});
+
+// 侧边栏功能
+const sidebarToggle = document.getElementById('sidebarToggle');
+const sidebar = document.getElementById('sidebar');
+const sidebarClose = document.getElementById('sidebarClose');
+
+// 创建遮罩层
+const overlay = document.createElement('div');
+overlay.className = 'sidebar-overlay';
+document.body.appendChild(overlay);
+
+// 自动生成文章列表
+function generateArticleList() {
+    const articleList = document.getElementById('articleList');
+    const articleCards = document.querySelectorAll('.article-card');
+    
+    articleList.innerHTML = '';
+    
+    articleCards.forEach(function(card) {
+        const titleEl = card.querySelector('.article-title');
+        if (titleEl && card.id) {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = '#' + card.id;
+            a.textContent = titleEl.textContent;
+            a.addEventListener('click', function() {
+                closeSidebar();
+            });
+            li.appendChild(a);
+            articleList.appendChild(li);
+        }
+    });
+}
+
+generateArticleList();
+
+// 打开侧边栏
+sidebarToggle.addEventListener('click', function() {
+    sidebar.classList.add('open');
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+});
+
+// 关闭侧边栏
+function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+sidebarClose.addEventListener('click', closeSidebar);
+overlay.addEventListener('click', closeSidebar);
+
+// ESC 键关闭侧边栏
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+        closeSidebar();
+    }
+});
+
+// 文章搜索功能
+const articleSearch = document.getElementById('articleSearch');
+
+articleSearch.addEventListener('input', function(e) {
+    const searchText = e.target.value.toLowerCase().trim();
+    const articleList = document.getElementById('articleList');
+    const allArticles = articleList.querySelectorAll('li');
+    
+    allArticles.forEach(function(li) {
+        const link = li.querySelector('a');
+        const title = link.textContent.toLowerCase();
+        
+        if (searchText === '' || title.includes(searchText)) {
+            li.style.display = 'block';
+        } else {
+            li.style.display = 'none';
+        }
+    });
+    
+    // 检查是否有结果显示
+    const visibleArticles = Array.from(allArticles).filter(function(li) {
+        return li.style.display !== 'none';
+    });
+    
+    // 移除之前的无结果提示
+    const existingNoResult = articleList.querySelector('.search-no-result');
+    if (existingNoResult) {
+        existingNoResult.remove();
+    }
+    
+    if (searchText && visibleArticles.length === 0) {
+        const noResult = document.createElement('li');
+        noResult.className = 'search-no-result';
+        noResult.textContent = '未找到匹配的文章';
+        articleList.insertBefore(noResult, articleList.firstChild);
+    }
+});
+
+// 回到顶部按钮
+const backToTopBtn = document.getElementById('backToTop');
+
+window.addEventListener('scroll', function() {
+    if (window.scrollY > 300) {
+        backToTopBtn.classList.add('show');
+    } else {
+        backToTopBtn.classList.remove('show');
+    }
+});
+
+backToTopBtn.addEventListener('click', function() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+});
+
+// 悬浮音乐播放器
+const musicPlayer = document.getElementById('music-player');
+const musicAudio = document.getElementById('musicAudio');
+const musicPlayBtn = document.getElementById('musicPlayBtn');
+const musicToggle = document.getElementById('musicToggle');
+const musicName = document.getElementById('musicName');
+
+const defaultMusic = 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=music-1.mp3';
+let currentMusic = localStorage.getItem('bgMusic') || defaultMusic;
+let isPlaying = localStorage.getItem('bgMusicPlaying') === 'true';
+let isCollapsed = localStorage.getItem('musicCollapsed') === 'true';
+
+// 移动端触摸支持
+let touchStartX = 0;
+let touchEndX = 0;
+
+function initMusicPlayer() {
+    musicAudio.src = currentMusic;
+    const musicFileName = currentMusic.split('/').pop().split('?')[0];
+    musicName.textContent = musicFileName || '背景音乐';
+    
+    // 初始化伸缩状态
+    if (isCollapsed) {
+        musicPlayer.classList.add('collapsed');
+    }
+    
+    if (isPlaying) {
+        musicPlayer.classList.add('playing');
+        musicAudio.play().catch(function() {
+            isPlaying = false;
+            musicPlayer.classList.remove('playing');
+        });
+    }
+}
+
+// 伸缩功能
+musicToggle.addEventListener('click', function(e) {
+    e.stopPropagation();
+    isCollapsed = !isCollapsed;
+    musicPlayer.classList.toggle('collapsed', isCollapsed);
+    localStorage.setItem('musicCollapsed', isCollapsed);
+});
+
+musicPlayBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (musicAudio.paused) {
+        musicAudio.play();
+        musicPlayer.classList.add('playing');
+        isPlaying = true;
+    } else {
+        musicAudio.pause();
+        musicPlayer.classList.remove('playing');
+        isPlaying = false;
+    }
+    localStorage.setItem('bgMusicPlaying', isPlaying);
+});
+
+musicAudio.addEventListener('ended', function() {
+    musicPlayer.classList.remove('playing');
+    isPlaying = false;
+    localStorage.setItem('bgMusicPlaying', false);
+});
+
+// 移动端滑动支持
+musicPlayer.addEventListener('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+}, {passive: true});
+
+musicPlayer.addEventListener('touchend', function(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+}, {passive: true});
+
+function handleSwipe() {
+    const swipeThreshold = 50; // 滑动阈值
+    const diff = touchStartX - touchEndX;
+    
+    // 检测是否为左右滑动
+    if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+            // 向左滑动 - 收起
+            if (!isCollapsed) {
+                isCollapsed = true;
+                musicPlayer.classList.add('collapsed');
+                localStorage.setItem('musicCollapsed', isCollapsed);
+            }
+        } else {
+            // 向右滑动 - 展开
+            if (isCollapsed) {
+                isCollapsed = false;
+                musicPlayer.classList.remove('collapsed');
+                localStorage.setItem('musicCollapsed', isCollapsed);
+            }
+        }
+    }
+}
+
+initMusicPlayer();
+
+// 暗色模式切换
+const themeToggle = document.getElementById('themeToggle');
+const themeTransition = document.createElement('div');
+themeTransition.className = 'theme-transition';
+document.body.appendChild(themeTransition);
+
+// 检查本地存储的主题设置
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+}
+
+themeToggle.addEventListener('click', function() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const isDark = currentTheme === 'dark';
+    
+    // 淡入过渡
+    themeTransition.classList.add('active');
+    
+    setTimeout(function() {
+        if (isDark) {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+        }
+    }, 150);
+    
+    setTimeout(function() {
+        themeTransition.classList.remove('active');
+    }, 300);
+});
+</script>
